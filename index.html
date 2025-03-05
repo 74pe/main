@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main</title>
+    <style>
+        iframe{
+            width: 500px;
+            height: 300px;
+        }
+        button{
+            display: block;
+        }
+    </style>
+    <script>
+        window.pageStart = performance.timeOrigin;
+    </script>
+</head>
+
+<body>
+    <h4>При нажатии на кнопку генерируются скрипт, same-origin iframe, cross-origin iframe (рандомное время появления)</h4>
+    <button onclick="generate()">Создать элементы</button>
+    <p id="p"></p>
+    <script>
+        window.addEventListener("message", (event) => {
+            event.source.postMessage(window.pageStart, event.origin);
+        });
+
+        function generate() {
+            setTimeout(injectIframe, Math.random() * 4e3 + 1e3);
+            setTimeout(injectCrossIframe, Math.random() * 4e3 + 1e3);
+            setTimeout(injectScript, Math.random() * 4e3 + 1e3);
+        }
+
+        function injectIframe() {
+            const iframe = document.createElement('iframe');
+            iframe.src = `http://localhost:5500/same.html`;
+            document.body.appendChild(iframe);
+        }
+        
+        
+        function injectCrossIframe() {
+            const iframe = document.createElement('iframe');
+            iframe.id = "cross"
+            iframe.src = `http://test.localhost:5500/cross.html`;
+            document.body.appendChild(iframe);
+        }
+        
+        
+        function injectScript() {
+            const script = document.createElement('script');
+            script.innerHTML = 'p.innerHTML = `Сообщение динамически созданного скрипта: с момента начала загрузки страницы прошло ${performance.now()} мс`';
+            
+            document.body.appendChild(script);
+        }
+
+
+    </script>
+</body>
+
+</html>
